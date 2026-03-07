@@ -13,6 +13,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0      # ensure full history for gh-pages push
+          persist-credentials: true  # allow later steps to push
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
