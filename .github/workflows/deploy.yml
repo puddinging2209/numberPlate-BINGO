@@ -1,5 +1,10 @@
 name: Build and Deploy to GitHub Pages
 
+# ensure actions have necessary write permissions for pages/contents
+permissions:
+  contents: write
+  pages: write
+
 on:
   push:
     branches:
@@ -38,6 +43,5 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
-          branch: gh-pages         # explicit target branch
           force_orphan: true       # create orphan branch if needed
           keep_files: false        # replace contents
