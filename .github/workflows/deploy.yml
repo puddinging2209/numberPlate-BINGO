@@ -2,8 +2,9 @@ name: Build and Deploy to GitHub Pages
 
 # ensure actions have necessary write permissions for pages/contents
 permissions:
-  contents: write
+  contents: read
   pages: write
+  id-token: write
 
 on:
   push:
@@ -11,16 +12,16 @@ on:
       - main
 
 jobs:
-  build:
-    name: Build site
+  build-and-deploy:
+    name: Build and Deploy
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0      # ensure full history for gh-pages push
-          persist-credentials: true  # allow later steps to push
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -33,15 +34,14 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Configure Git for Actions
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
-          force_orphan: true       # create orphan branch if needed
-          keep_files: false        # replace contents
+        id: deployment
+        uses: actions/deploy-pages@v4
