@@ -8,7 +8,7 @@ import { Box, Card, IconButton, Stack, Typography } from "@mui/material";
 
 import { BINGOAtom } from "../Atom.js";
 
-function PreviewCard({ id, value }) {
+export function PreviewCard({ id, value }) {
     const setBINGO = useSetAtom(BINGOAtom);
 
     // delete the cell by matching its unique id; keep the id so
@@ -24,7 +24,7 @@ function PreviewCard({ id, value }) {
     }
 
     return (
-        <Card sx={{ width: 100, height: 100, position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <Card sx={{ width: 100, height: 100, position: "relative", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid #000" }}>
             {value != null && (
                 <Box sx={{ position: "absolute", top: 0, right: 0 }}>
                     <IconButton
@@ -68,8 +68,13 @@ function Cell({ id, value }) {
     );
 }
 
+
+import Output from "./Output.jsx";
+
 function Preview() {
     const [BINGO, setBINGO] = useAtom(BINGOAtom);
+
+
 
     // ensure every cell has a stable id (handles older states)
     // keeping an id on empty cells lets us drag a filled cell into them.
@@ -92,7 +97,6 @@ function Preview() {
     // handlers can compute from latest state to avoid stale closures
     const handleDragEnd = (event) => {
         const { active, over } = event;
-        console.log("dragEnd", { active: active?.id, over: over?.id });
         if (over && active.id !== over.id) {
             setBINGO((prev) => {
                 const flatPrev = prev.flat();
@@ -112,21 +116,24 @@ function Preview() {
     };
 
     return (
-        <DndContext onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <Stack spacing={2}>
-                    {BINGO.map((row, r) => (
-                        <Stack direction="row" spacing={2} key={r} sx={{ justifyContent: 'center' }}>
-                            {row.map((value, c) => {
-                                // fallback to coordinate if id somehow still null
-                                const cellId = value.id ?? `${r}-${c}`;
-                                return <Cell key={cellId} id={cellId} value={value.name} />;
-                            })}
-                        </Stack>
-                    ))}
-                </Stack>
-            </Box>
-        </DndContext>
+        <>
+            <DndContext onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    <Stack spacing={2}>
+                        {BINGO.map((row, r) => (
+                            <Stack direction="row" spacing={2} key={r} sx={{ justifyContent: 'center' }}>
+                                {row.map((value, c) => {
+                                    // fallback to coordinate if id somehow still null
+                                    const cellId = value.id ?? `${r}-${c}`;
+                                    return <Cell key={cellId} id={cellId} value={value.name} />;
+                                })}
+                            </Stack>
+                        ))}
+                    </Stack>
+                </Box>
+            </DndContext>
+            <Output BINGO={BINGO} setBINGO={setBINGO} />
+        </>
     );
 }
 

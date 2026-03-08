@@ -3,12 +3,11 @@ import {
     Accordion,
     AccordionDetails,
     AccordionSummary,
-    Checkbox,
-    FormControlLabel,
     FormGroup,
     Typography
 } from "@mui/material";
 import React from "react";
+import AddCheckBox from './AddCheckBox';
 
 const RegionAccordion = React.memo(function RegionAccordion({
     regionName,
@@ -68,15 +67,10 @@ const RegionAccordion = React.memo(function RegionAccordion({
                     <AccordionDetails>
                         <FormGroup>
                             {cities.map((city) => (
-                                <FormControlLabel
-                                    key={`${key}-${city}`}
-                                    control={
-                                        <Checkbox
-                                            checked={isCityInBINGO(city)}
-                                            onChange={(e) => handleCheckboxChange(key, city, e.target.checked)}
-                                        />
-                                    }
-                                    label={city}
+                                <AddCheckBox
+                                    key={city}
+                                    prefecture={key}
+                                    city={city}
                                 />
                             ))}
                         </FormGroup>
