@@ -1,3 +1,5 @@
+import React from "react";
+
 import {
     closestCenter,
     DndContext,
@@ -9,16 +11,32 @@ import {
     useSensors
 } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
-import { useAtom, useSetAtom } from "jotai";
-import React from "react";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Box, Card, IconButton, Stack, Typography } from "@mui/material";
 
-import { BINGOAtom } from "../Atom.js";
+import { BINGOAtom, ReferencePointAtom } from "../Atom.js";
+import haversine from "../utils/haversine.js";
 
-export function PreviewCard({ id, value }) {
+import pointList from "../data/pointList.json";
+
+export function PreviewCard({ id, value, point }) {
     const setBINGO = useSetAtom(BINGOAtom);
+    const referencePoint = useAtomValue(ReferencePointAtom);
+
+    React.useEffect(() => {
+        if (referencePoint && value && pointList[value]) {
+            const p = haversine(referencePoint, pointList[value]);
+            setBINGO(prev =>
+                prev.map(row =>
+                    row.map(cell =>
+                        cell.id === id ? { ...cell, point: (p / 100).toFixed(0) / 100 } : cell
+                    )
+                )
+            );
+        }
+    }, [referencePoint]);
 
     // delete the cell by matching its unique id; keep the id so
     // the empty slot stays draggable and we can swap with it later
@@ -48,11 +66,14 @@ export function PreviewCard({ id, value }) {
                 </Box>
             )}
             <Typography variant="h6">{value ?? ''}</Typography>
+            <Typography variant="caption" sx={{ position: "absolute", bottom: 0 }}>
+                {point ? `${point} points` : ''}
+            </Typography>
         </Card>
     );
 }
 
-function Cell({ id, value }) {
+function Cell({ id, value, point }) {
     const { attributes, listeners, setNodeRef: setDragRef, transform, transition, isDragging } = useDraggable({ id });
     const { setNodeRef: setDropRef } = useDroppable({ id });
     const style = {
@@ -73,7 +94,7 @@ function Cell({ id, value }) {
             {...attributes}
             {...listeners}
         >
-            <PreviewCard id={id} value={value} />
+            <PreviewCard id={id} value={value} point={point} />
         </div>
     );
 }
@@ -147,7 +168,7 @@ function Preview() {
                                 {row.map((value, c) => {
                                     // fallback to coordinate if id somehow still null
                                     const cellId = value.id ?? `${r}-${c}`;
-                                    return <Cell key={cellId} id={cellId} value={value.name} />;
+                                    return <Cell key={cellId} id={cellId} value={value.name} point={value.point} />;
                                 })}
                             </Stack>
                         ))}

@@ -15,46 +15,7 @@ const RegionAccordion = React.memo(function RegionAccordion({
     expanded,
     onChange,
     BINGO,
-    setBINGO
 }) {
-    // ヘルパー関数
-    const isCityInBINGO = (city) => {
-        return BINGO.flat().some(cell => cell.name === city);
-    };
-
-    const findFirstNullCell = () => {
-        for (let r = 0; r < 5; r++) {
-            for (let c = 0; c < 5; c++) {
-                if (BINGO[r][c].name === null) {
-                    return { r, c };
-                }
-            }
-        }
-        return null; // 全て埋まっている場合
-    };
-
-    const handleCheckboxChange = (prefecture, city, checked) => {
-        if (checked) {
-            // チェックされたら、最初のnullのセルに追加
-            const nullCell = findFirstNullCell();
-            if (nullCell) {
-                setBINGO(prev => {
-                    const newBINGO = prev.map(row => row.map(cell => ({ ...cell })));
-                    newBINGO[nullCell.r][nullCell.c] = { id: `${prefecture}-${city}`, name: city };
-                    return newBINGO;
-                });
-            }
-        } else {
-            // チェック解除されたら、そのcityを削除
-            setBINGO(prev => {
-                return prev.map(row =>
-                    row.map(cell =>
-                        cell.name === city ? { id: null, name: null } : cell
-                    )
-                );
-            });
-        }
-    };
 
     // prefectures は変わらないので、レンダーツリーをメモ化
     const prefectureNodes = React.useMemo(

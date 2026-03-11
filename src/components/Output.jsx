@@ -7,7 +7,7 @@ import jsPDF from "jspdf";
 
 import { BINGOAtom } from "../Atom.js";
 
-function ExportCell({ value }) {
+function ExportCell({ value, point }) {
     return (
         <Box
             sx={{
@@ -18,9 +18,13 @@ function ExportCell({ value }) {
                 alignItems: "center",
                 justifyContent: "center",
                 backgroundColor: "#fff",
+                position: "relative",
             }}
         >
             <Typography variant="h6">{value ?? ""}</Typography>
+            <Typography variant="caption" sx={{ position: "absolute", bottom: 0 }}>
+                {point ? `${point} points` : ''}
+            </Typography>
         </Box>
     );
 }
@@ -167,6 +171,7 @@ export default function Output() {
                                         <ExportCell
                                             key={cell.id ?? `${r}-${c}`}
                                             value={cell.name}
+                                            point={cell.point}
                                         />
                                     ))}
                                 </Stack>

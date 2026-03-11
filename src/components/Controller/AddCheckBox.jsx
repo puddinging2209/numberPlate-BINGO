@@ -1,10 +1,14 @@
 import { Checkbox, FormControlLabel } from "@mui/material";
-import { useAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 
-import { BINGOAtom } from "../../Atom.js";
+import { BINGOAtom, ReferencePointAtom } from "../../Atom.js";
+import haversine from "../../utils/haversine.js";
+
+import pointList from "../../data/pointList.json";
 
 function AddCheckBox({ prefecture, city }) {
     const [BINGO, setBINGO] = useAtom(BINGOAtom);
+    const referencePoint = useAtomValue(ReferencePointAtom);
 
     const isCityInBINGO = (city) => {
         return BINGO.flat().some(cell => cell.name === city);
@@ -26,9 +30,10 @@ function AddCheckBox({ prefecture, city }) {
             // チェックされたら、最初のnullのセルに追加
             const nullCell = findFirstNullCell();
             if (nullCell) {
+                const p = haversine(referencePoint, pointList[city]);
                 setBINGO(prev => {
                     const newBINGO = prev.map(row => row.map(cell => ({ ...cell })));
-                    newBINGO[nullCell.r][nullCell.c] = { id: `${prefecture}-${city}`, name: city };
+                    newBINGO[nullCell.r][nullCell.c] = { id: `${prefecture}-${city}`, name: city, point: (p / 100).toFixed(0) / 100 };
                     return newBINGO;
                 });
             }
