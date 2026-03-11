@@ -35,18 +35,18 @@ function Controller() {
             <Stack direction="row" spacing={1}>
                 <Typography variant="body1">得点基準地点</Typography>
                 <TextField
-                    label="経度"
+                    label="東経"
                     variant="outlined"
                     value={referencePoint[0]}
-                    onChange={e => setReferencePoint([referencePoint[0], parseFloat(e.target.value)])}
+                    onChange={e => setReferencePoint(prev => [parseFloat(e.target.value), prev[1]])}
                     error={isNaN(referencePoint[0])}
                     helperText={isNaN(referencePoint[0]) ? "正の実数を入力してください" : ""}
                 />
                 <TextField
-                    label="緯度"
+                    label="北緯"
                     variant="outlined"
                     value={referencePoint[1]}
-                    onChange={e => setReferencePoint([parseFloat(e.target.value), referencePoint[1]])}
+                    onChange={e => setReferencePoint(prev => [prev[0], parseFloat(e.target.value)])}
                     error={isNaN(referencePoint[1])}
                     helperText={isNaN(referencePoint[1]) ? "正の実数を入力してください" : ""}
                 />
