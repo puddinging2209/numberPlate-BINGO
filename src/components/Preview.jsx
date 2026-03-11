@@ -1,4 +1,13 @@
-import { closestCenter, DndContext, useDraggable, useDroppable } from "@dnd-kit/core";
+import {
+    closestCenter,
+    DndContext,
+    MouseSensor,
+    TouchSensor,
+    useDraggable,
+    useDroppable,
+    useSensor,
+    useSensors
+} from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { useAtom, useSetAtom } from "jotai";
 import React from "react";
@@ -51,6 +60,7 @@ function Cell({ id, value }) {
         transition,
         zIndex: isDragging ? 1000 : undefined,
         userSelect: 'none',
+        touchAction: 'none'
     };
 
     return (
@@ -74,8 +84,6 @@ import Output from "./Output.jsx";
 function Preview() {
     const [BINGO, setBINGO] = useAtom(BINGOAtom);
 
-
-
     // ensure every cell has a stable id (handles older states)
     // keeping an id on empty cells lets us drag a filled cell into them.
     React.useEffect(() => {
@@ -93,6 +101,16 @@ function Preview() {
             setBINGO(patched);
         }
     }, [BINGO, setBINGO]);
+
+    const sensors = useSensors(
+        useSensor(MouseSensor),
+        useSensor(TouchSensor, {
+            activationConstraint: {
+                delay: 100,
+                tolerance: 5,
+            },
+        })
+    );
 
     // handlers can compute from latest state to avoid stale closures
     const handleDragEnd = (event) => {
@@ -117,7 +135,11 @@ function Preview() {
 
     return (
         <>
-            <DndContext onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
+            <DndContext
+                sensors={sensors}
+                onDragEnd={handleDragEnd}
+                collisionDetection={closestCenter}
+            >
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <Stack spacing={2}>
                         {BINGO.map((row, r) => (
